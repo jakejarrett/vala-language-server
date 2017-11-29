@@ -16,3 +16,14 @@ enum LanguageServer.TextDocumentSyncKind {
 	 */
 	Incremental = 2
 }
+
+/**
+ * Interface for which capabilities the language server supports / does not support.
+ */
+enum LanguageServer.ServerCapabilities {
+
+	/**
+	 * Disable while working on implementation
+	 */
+	definitionProvider = false;
+}
