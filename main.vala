@@ -43,6 +43,11 @@ class Vls.Server {
             stderr.printf (@"Got notification! $method\n");
             if (method == "textDocument/didOpen")
                 this.textDocumentDidOpen(client, @params);
+
+            /** Go to definition */
+            if (method == "textDocument/definition") {
+                this.textDocumentGoToDefinition (client, @params);
+            }
         });
 
         server.add_handler ("initialize", this.initialize);
@@ -97,6 +102,36 @@ class Vls.Server {
             type = Vala.SourceFileType.SOURCE;
         else if (uri.has_suffix (".vapi"))
             type = Vala.SourceFileType.PACKAGE;
+        var filename = Filename.from_uri (uri);
+        var source = new Vala.SourceFile (ctx, type, filename, fileContents);
+
+        ctx.add_source_file (source);
+
+        if (ctx.report.get_errors () > 0) {
+            stderr.printf ("got errors !!!! :/\n");
+        }
+    }
+
+    void textDocumentGoToDefinition (Jsonrpc.Client client, Variant @params) {
+        var type = Vala.SourceFileType.NONE;
+        var document = @params.lookup_value ("textDocument", VariantType.VARDICT);
+        // TODO- Implement position.
+        //var position = @params.lookup_value ("position", )
+        string uri          = (string) document.lookup_value ("uri",        VariantType.STRING);
+        string languageId   = (string) document.lookup_value ("languageId", VariantType.STRING);
+        string fileContents = (string) document.lookup_value ("text",       VariantType.STRING);
+
+        if (languageId != "vala") {
+            warning (@"$languageId file sent to vala language server");
+            return;
+        }
+
+        if (uri.has_suffix (".vala")) {
+            type = Vala.SourceFileType.SOURCE;
+        } else if (uri.has_suffix (".vapi")) {
+            type = Vala.SourceFileType.PACKAGE;
+        }
+        
         var filename = Filename.from_uri (uri);
         var source = new Vala.SourceFile (ctx, type, filename, fileContents);
 
