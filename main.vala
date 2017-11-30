@@ -5,6 +5,7 @@ class Vls.Server {
     MainLoop loop;
 
     Vala.CodeContext ctx;
+    Definitions definitions;
 
     public Server (MainLoop loop) {
         this.loop = loop;
@@ -12,6 +13,8 @@ class Vls.Server {
         // libvala setup
         this.ctx = new Vala.CodeContext ();
         Vala.CodeContext.push (ctx);
+
+        this.definitions = new Definitions ();
 
         string version = "0.38.3"; //Config.libvala_version;
         string[] parts = version.split(".");
